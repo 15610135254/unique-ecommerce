@@ -1,10 +1,19 @@
 
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import Hero from '../../components/Hero';
 import CategoryBubbles from '../../components/CategoryBubbles';
 import ProductGrid from '../../components/ProductGrid';
+import { Product } from '../../types';
 
 const HomePage: React.FC = () => {
+  const navigate = useNavigate();
+
+  const handleSelectProduct = (product: Product) => {
+    const id = typeof product.id === 'string' ? product.id : String(product.id);
+    navigate(`/product/${id}`);
+  };
+
   return (
     <>
       <Hero />
@@ -16,7 +25,7 @@ const HomePage: React.FC = () => {
             <p className="text-gray-500 mt-2 font-light">Curated Selection</p>
           </div>
         </div>
-        <ProductGrid />
+        <ProductGrid onSelectProduct={handleSelectProduct} />
       </div>
     </>
   );

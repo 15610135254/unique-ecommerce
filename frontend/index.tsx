@@ -32,7 +32,10 @@ root.render(
           <Route path="/" element={<App />}>
             <Route index element={<HomePage />} />
 
-            {/* Product routes */}
+            {/* Product routes - SEO friendly: /bags/leather/slug-123 */}
+            <Route path=":category/:material/:slug" element={<ProductDetailPage />} />
+
+            {/* Legacy product route for backward compatibility */}
             <Route path="product/:id" element={<ProductDetailPage />} />
 
             {/* New arrivals */}

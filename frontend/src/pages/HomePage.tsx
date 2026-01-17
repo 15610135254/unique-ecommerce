@@ -5,13 +5,20 @@ import Hero from '../../components/Hero';
 import CategoryBubbles from '../../components/CategoryBubbles';
 import ProductGrid from '../../components/ProductGrid';
 import { Product } from '../../types';
+import { generateProductPath } from '../utils/slug';
 
 const HomePage: React.FC = () => {
   const navigate = useNavigate();
 
   const handleSelectProduct = (product: Product) => {
-    const id = typeof product.id === 'string' ? product.id : String(product.id);
-    navigate(`/product/${id}`);
+    const id = typeof product.id === 'string' ? parseInt(product.id) : product.id;
+    const path = generateProductPath(
+      product.category,
+      product.material,
+      product.name,
+      id
+    );
+    navigate(path);
   };
 
   return (

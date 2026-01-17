@@ -71,7 +71,7 @@ const AuthPage: React.FC<AuthPageProps> = ({ onAuthSuccess }) => {
             phone: formData.phone,
             password: formData.password,
           });
-          if (response.success) {
+          if (response.code === 200) {
             onAuthSuccess({
               id: response.data.user.id,
               username: response.data.user.username,
@@ -85,7 +85,7 @@ const AuthPage: React.FC<AuthPageProps> = ({ onAuthSuccess }) => {
             phone: formData.phone,
             code: formData.code,
           });
-          if (response.success) {
+          if (response.code === 200) {
             onAuthSuccess({
               id: response.data.user.id,
               username: response.data.user.username,
@@ -102,7 +102,7 @@ const AuthPage: React.FC<AuthPageProps> = ({ onAuthSuccess }) => {
           password: formData.password,
           verificationCode: formData.code,
         });
-        if (response.success) {
+        if (response.code === 200) {
           onAuthSuccess({
             id: response.data.user.id,
             username: response.data.user.username,

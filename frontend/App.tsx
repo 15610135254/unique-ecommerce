@@ -39,7 +39,7 @@ const App: React.FC = () => {
       if (token) {
         try {
           const response = await authApi.getCurrentUser();
-          if (response.success) {
+          if (response.code === 200) {
             setUser(response.data);
           }
         } catch (error) {

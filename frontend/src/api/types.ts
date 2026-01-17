@@ -1,7 +1,7 @@
 // API Types matching backend responses
 export interface ApiResponse<T> {
-  success: boolean;
-  message?: string;
+  code: number;
+  message: string;
   data: T;
 }
 

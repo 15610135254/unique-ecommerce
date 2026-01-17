@@ -34,7 +34,7 @@ export const authApi = {
   // Login with password
   login: async (credentials: LoginRequest): Promise<ApiResponse<AuthResponse>> => {
     const response = await httpClient.post<ApiResponse<AuthResponse>>('/auth/login', credentials);
-    if (response.success && response.data.token) {
+    if (response.code === 200 && response.data.token) {
       setAuthToken(response.data.token);
     }
     return response;
@@ -43,7 +43,7 @@ export const authApi = {
   // Login with SMS code
   smsLogin: async (credentials: SmsLoginRequest): Promise<ApiResponse<AuthResponse>> => {
     const response = await httpClient.post<ApiResponse<AuthResponse>>('/auth/sms-login', credentials);
-    if (response.success && response.data.token) {
+    if (response.code === 200 && response.data.token) {
       setAuthToken(response.data.token);
     }
     return response;
@@ -52,7 +52,7 @@ export const authApi = {
   // Register new user
   register: async (userData: RegisterRequest): Promise<ApiResponse<AuthResponse>> => {
     const response = await httpClient.post<ApiResponse<AuthResponse>>('/auth/register', userData);
-    if (response.success && response.data.token) {
+    if (response.code === 200 && response.data.token) {
       setAuthToken(response.data.token);
     }
     return response;

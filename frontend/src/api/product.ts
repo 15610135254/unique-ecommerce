@@ -17,7 +17,7 @@ export const productApi = {
     }>>(`/products?page=${page}&size=${size}`);
     // Transform Spring Page response to simple array
     return {
-      success: response.success,
+      code: response.code,
       message: response.message,
       data: response.data.content,
     };
@@ -36,7 +36,7 @@ export const productApi = {
       totalPages: number;
     }>>(`/products/filter?page=${page}&size=${size}`, filter);
     return {
-      success: response.success,
+      code: response.code,
       message: response.message,
       data: response.data.content,
     };

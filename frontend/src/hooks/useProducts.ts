@@ -28,7 +28,7 @@ export const useProducts = (page = 0, size = 20) => {
     try {
       setLoading(true);
       const response = await productApi.getAll(page, size);
-      if (response.success) {
+      if (response.code === 200) {
         setProducts(response.data.map(transformProduct));
       }
       setError(null);
@@ -57,7 +57,7 @@ export const useNewProducts = () => {
       try {
         setLoading(true);
         const response = await productApi.getNewProducts();
-        if (response.success) {
+        if (response.code === 200) {
           setProducts(response.data.map(transformProduct));
         }
         setError(null);
@@ -85,7 +85,7 @@ export const useCategories = () => {
       try {
         setLoading(true);
         const response = await categoryApi.getTopLevel();
-        if (response.success) {
+        if (response.code === 200) {
           setCategories(response.data);
         }
         setError(null);

@@ -56,7 +56,7 @@ const BespokePage: React.FC = () => {
         requirements: formData.requirements,
       });
 
-      if (response.success || response.code === 200) {
+      if (response.code === 200) {
         setMessage({ type: 'success', text: '定制请求已提交！我们会尽快联系您。' });
         // Reset form
         setFormData({ name: '', phone: '', requirements: '' });

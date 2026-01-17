@@ -30,7 +30,7 @@ export const useCart = () => {
     try {
       setLoading(true);
       const response = await cartApi.getCartItems();
-      if (response.success) {
+      if (response.code === 200) {
         const items = response.data.map(transformCartItem);
         setCartItems(items);
         setCartCount(items.reduce((sum, item) => sum + item.quantity, 0));

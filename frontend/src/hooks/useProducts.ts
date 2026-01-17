@@ -3,20 +3,20 @@ import { productApi, categoryApi, ProductResponse, CategoryResponse } from '../a
 import { Product } from '../types';
 
 // Transform API product to local product format
-export const transformProduct = (apiProduct: ProductResponse): Product => ({
+export const transformProduct = (apiProduct: any): Product => ({
   id: apiProduct.id,
   name: apiProduct.name,
   price: apiProduct.price,
-  image: apiProduct.imageUrl || apiProduct.imageUrl || '',
-  imageUrl: apiProduct.imageUrl,
-  creator: apiProduct.creator.name,
-  creatorId: apiProduct.creator.id,
-  category: apiProduct.category.name,
-  categoryId: apiProduct.category.id,
+  image: apiProduct.image || apiProduct.imageUrl || '',
+  imageUrl: apiProduct.image || apiProduct.imageUrl || '',
+  creator: apiProduct.creatorName || apiProduct.creator?.name || '',
+  creatorId: apiProduct.creatorId || apiProduct.creator?.id,
+  category: apiProduct.categoryDisplay || apiProduct.category || '',
+  categoryId: apiProduct.categoryId || apiProduct.category?.id,
   description: apiProduct.description,
-  isCustomizable: apiProduct.isCustomizable,
-  isNew: apiProduct.isNew,
-  stock: apiProduct.stock,
+  isCustomizable: apiProduct.isCustomizable || false,
+  isNew: apiProduct.isNew || false,
+  stock: apiProduct.stockQuantity || apiProduct.stock,
 });
 
 export const useProducts = (page = 0, size = 20) => {

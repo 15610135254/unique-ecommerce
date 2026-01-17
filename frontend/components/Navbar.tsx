@@ -1,26 +1,11 @@
 
 import React, { useState, useEffect, useRef } from 'react';
-import { authApi } from '../src/api';
+import { Link, useNavigate } from 'react-router-dom';
+import { useApp } from '../src/context/AppContext';
 
-interface NavbarProps {
-  cartCount: number;
-  onSearchClick: () => void;
-  onCartClick: () => void;
-  onAuthClick: () => void;
-  user: { id: number; username: string; phone: string; role: string } | null;
-  onNavigate: (view: 'home' | 'new' | 'gallery' | 'artists' | 'bespoke') => void;
-  onLogout: () => void;
-}
-
-const Navbar: React.FC<NavbarProps> = ({
-  cartCount,
-  onSearchClick,
-  onCartClick,
-  onAuthClick,
-  user,
-  onNavigate,
-  onLogout
-}) => {
+const Navbar: React.FC = () => {
+  const { user, cartCount, isFilterOpen, setIsFilterOpen, isCartOpen, setIsCartOpen, handleLogout } = useApp();
+  const navigate = useNavigate();
   const [isScrolled, setIsScrolled] = useState(false);
   const [showUserMenu, setShowUserMenu] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
@@ -44,34 +29,34 @@ const Navbar: React.FC<NavbarProps> = ({
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  const handleLogout = () => {
-    authApi.logout();
+  const handleLogoutClick = () => {
     setShowUserMenu(false);
-    onLogout();
+    handleLogout();
+    navigate('/');
   };
 
   return (
     <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 glass-nav ${isScrolled ? 'py-4 shadow-sm border-b border-gray-100' : 'py-8'}`}>
       <div className="container mx-auto px-6 md:px-12 flex justify-between items-center">
         {/* Logo */}
-        <div
-          onClick={() => onNavigate('home')}
-          className="cursor-pointer text-2xl heading-font font-bold tracking-[0.2em] select-none"
+        <Link
+          to="/"
+          className="text-2xl heading-font font-bold tracking-[0.2em] select-none"
         >
           U N I Q U E
-        </div>
+        </Link>
 
         {/* Menu Items (Desktop) */}
         <div className="hidden md:flex space-x-12 text-xs uppercase tracking-widest font-light">
-          <button onClick={() => onNavigate('new')} className="hover:text-gray-400 transition-colors">新品 New</button>
-          <button onClick={() => onNavigate('gallery')} className="hover:text-gray-400 transition-colors">分类 Gallery</button>
-          <button onClick={() => onNavigate('artists')} className="hover:text-gray-400 transition-colors">创作者 Artists</button>
-          <button onClick={() => onNavigate('bespoke')} className="hover:text-gray-400 transition-colors">定制 Bespoke</button>
+          <Link to="/new" className="hover:text-gray-400 transition-colors">新品 New</Link>
+          <Link to="/gallery" className="hover:text-gray-400 transition-colors">分类 Gallery</Link>
+          <Link to="/artists" className="hover:text-gray-400 transition-colors">创作者 Artists</Link>
+          <Link to="/bespoke" className="hover:text-gray-400 transition-colors">定制 Bespoke</Link>
         </div>
 
         {/* Icons */}
         <div className="flex items-center space-x-6">
-          <button onClick={onSearchClick} className="hover:opacity-60 transition-opacity">
+          <button onClick={() => setIsFilterOpen(!isFilterOpen)} className="hover:opacity-60 transition-opacity">
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
             </svg>
@@ -99,19 +84,19 @@ const Navbar: React.FC<NavbarProps> = ({
                   </div>
                   <div className="py-2">
                     <button
-                      onClick={() => { setShowUserMenu(false); onNavigate('gallery'); }}
+                      onClick={() => { setShowUserMenu(false); navigate('/gallery'); }}
                       className="w-full text-left px-6 py-3 text-[10px] uppercase tracking-widest hover:bg-gray-50 transition-colors border-l-2 border-transparent hover:border-black"
                     >
                       我的订单 Orders
                     </button>
                     <button
-                      onClick={() => { setShowUserMenu(false); onNavigate('bespoke'); }}
+                      onClick={() => { setShowUserMenu(false); navigate('/bespoke'); }}
                       className="w-full text-left px-6 py-3 text-[10px] uppercase tracking-widest hover:bg-gray-50 transition-colors border-l-2 border-transparent hover:border-black"
                     >
                       定制请求 Customization
                     </button>
                     <button
-                      onClick={handleLogout}
+                      onClick={handleLogoutClick}
                       className="w-full text-left px-6 py-3 text-[10px] uppercase tracking-widest hover:bg-gray-50 transition-colors border-l-2 border-transparent hover:border-black text-gray-600"
                     >
                       退出登录 Logout
@@ -121,14 +106,20 @@ const Navbar: React.FC<NavbarProps> = ({
               )}
             </div>
           ) : (
-            <button onClick={onAuthClick} className="hover:opacity-60 transition-opacity">
+            <button
+              onClick={() => navigate('/auth')}
+              className="hover:opacity-60 transition-opacity"
+            >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
               </svg>
             </button>
           )}
 
-          <button onClick={onCartClick} className="relative hover:opacity-60 transition-opacity">
+          <button
+            onClick={() => setIsCartOpen(!isCartOpen)}
+            className="relative hover:opacity-60 transition-opacity"
+          >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
             </svg>

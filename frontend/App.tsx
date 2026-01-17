@@ -1,181 +1,43 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useEffect } from 'react';
+import { Outlet, useLocation } from 'react-router-dom';
 import Navbar from './components/Navbar';
-import Hero from './components/Hero';
-import CategoryBubbles from './components/CategoryBubbles';
-import ProductGrid from './components/ProductGrid';
-import ProductDetail from './components/ProductDetail';
-import ArtistsGallery from './components/ArtistsGallery';
-import BespokePage from './components/BespokePage';
-import GalleryPage from './components/GalleryPage';
-import NewArrivalsPage from './components/NewArrivalsPage';
-import StoryPage from './components/StoryPage';
-import PolicyPage from './components/PolicyPage';
-import FAQPage from './components/FAQPage';
-import AuthPage from './components/AuthPage';
 import Footer from './components/Footer';
 import FilterSidebar from './components/FilterSidebar';
 import CartDrawer from './components/CartDrawer';
-import { Product, User } from './types';
-import { useCart } from './src/hooks/useCart';
-import { authApi, getAuthToken } from './src/api';
-
-type ViewState = 'home' | 'new' | 'gallery' | 'artists' | 'bespoke' | 'story' | 'policy' | 'faq' | 'auth';
+import { useApp } from './src/context/AppContext';
 
 const App: React.FC = () => {
-  const [currentView, setCurrentView] = useState<ViewState>('home');
-  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
-  const [isFilterOpen, setIsFilterOpen] = useState(false);
-  const [isCartOpen, setIsCartOpen] = useState(false);
-  const [user, setUser] = useState<User | null>(null);
-  const [pendingAddToCartProductId, setPendingAddToCartProductId] = useState<number | null>(null);
+  const location = useLocation();
+  const {
+    cartCount,
+    isFilterOpen,
+    setIsFilterOpen,
+    isCartOpen,
+    setIsCartOpen,
+  } = useApp();
 
-  // Use cart hook
-  const { cartCount, addToCart } = useCart();
-
-  // Check for existing auth on mount
+  // Scroll to top on route change
   useEffect(() => {
-    const checkAuth = async () => {
-      const token = getAuthToken();
-      if (token) {
-        try {
-          const response = await authApi.getCurrentUser();
-          if (response.code === 200) {
-            setUser(response.data);
-          }
-        } catch (error) {
-          console.error('Failed to get current user:', error);
-        }
-      }
-    };
-    checkAuth();
-  }, []);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, [location.pathname]);
 
+  // Listen for custom event to open cart drawer (from ProductDetailPage)
   useEffect(() => {
-    const timer = setTimeout(() => {
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    }, 0);
-    return () => clearTimeout(timer);
-  }, [selectedProduct, currentView]);
-
-  const handleAddToCart = async (productId: number) => {
-    // Check if user is logged in
-    if (!user) {
-      // Store the product ID and navigate to auth
-      setPendingAddToCartProductId(productId);
-      setCurrentView('auth');
-      return;
-    }
-
-    try {
-      await addToCart(productId, 1);
-      setIsCartOpen(true);
-    } catch (error) {
-      console.error('Failed to add to cart:', error);
-    }
-  };
-
-  const handleLogout = () => {
-    setUser(null);
-    setCurrentView('home');
-  };
-
-  const handleAuthSuccess = async (userData: User) => {
-    setUser(userData);
-    setCurrentView('home');
-
-    // If there's a pending add to cart action, execute it
-    if (pendingAddToCartProductId) {
-      try {
-        await addToCart(pendingAddToCartProductId, 1);
-        setIsCartOpen(true);
-        setPendingAddToCartProductId(null);
-      } catch (error) {
-        console.error('Failed to add to cart after login:', error);
-      }
-    }
-  };
-
-  const renderContent = () => {
-    if (selectedProduct) {
-      return (
-        <ProductDetail
-          product={selectedProduct}
-          onBack={() => setSelectedProduct(null)}
-          onAddToCart={() => {
-            const id = typeof selectedProduct.id === 'string' ? parseInt(selectedProduct.id) : selectedProduct.id;
-            handleAddToCart(id);
-          }}
-        />
-      );
-    }
-
-    switch (currentView) {
-      case 'auth':
-        return <AuthPage onAuthSuccess={handleAuthSuccess} />;
-      case 'gallery':
-        return <GalleryPage onSelectProduct={setSelectedProduct} />;
-      case 'new':
-        return <NewArrivalsPage onSelectProduct={setSelectedProduct} />;
-      case 'artists':
-        return <ArtistsGallery />;
-      case 'bespoke':
-        return <BespokePage />;
-      case 'story':
-        return <StoryPage />;
-      case 'policy':
-        return <PolicyPage />;
-      case 'faq':
-        return <FAQPage />;
-      case 'home':
-      default:
-        return (
-          <>
-            <Hero />
-            <CategoryBubbles />
-            <div className="px-6 md:px-12 py-12">
-              <div className="flex justify-between items-end mb-8">
-                <div>
-                  <h2 className="text-3xl font-light heading-font">精心策展</h2>
-                  <p className="text-gray-500 mt-2 font-light">Curated Selection</p>
-                </div>
-                <button
-                  onClick={() => setIsFilterOpen(true)}
-                  className="px-4 py-2 border-b border-black text-sm uppercase tracking-widest hover:bg-black hover:text-white transition-all duration-300"
-                >
-                  筛选 Filter
-                </button>
-              </div>
-              <ProductGrid onSelectProduct={setSelectedProduct} />
-            </div>
-          </>
-        );
-    }
-  };
+    const handleOpenCart = () => setIsCartOpen(true);
+    window.addEventListener('open-cart', handleOpenCart);
+    return () => window.removeEventListener('open-cart', handleOpenCart);
+  }, [setIsCartOpen]);
 
   return (
     <div className="min-h-screen flex flex-col animate-fade-in overflow-x-hidden">
-      <Navbar
-        cartCount={cartCount}
-        onSearchClick={() => setIsFilterOpen(true)}
-        onCartClick={() => setIsCartOpen(true)}
-        onAuthClick={() => setCurrentView('auth')}
-        user={user}
-        onNavigate={(view) => {
-          setSelectedProduct(null);
-          setCurrentView(view);
-        }}
-        onLogout={handleLogout}
-      />
+      <Navbar />
 
       <main className="flex-grow pt-20">
-        {renderContent()}
+        <Outlet />
       </main>
 
-      <Footer onNavigate={(view) => {
-        setSelectedProduct(null);
-        setCurrentView(view);
-      }} />
+      <Footer />
 
       <FilterSidebar
         isOpen={isFilterOpen}
@@ -187,6 +49,7 @@ const App: React.FC = () => {
         onClose={() => setIsCartOpen(false)}
       />
 
+      {/* Mobile floating cart button */}
       <div className="fixed bottom-8 right-8 z-40 md:hidden">
         <button
           onClick={() => setIsCartOpen(true)}

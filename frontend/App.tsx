@@ -16,7 +16,9 @@ import AuthPage from './components/AuthPage';
 import Footer from './components/Footer';
 import FilterSidebar from './components/FilterSidebar';
 import CartDrawer from './components/CartDrawer';
-import { Product } from './types';
+import { Product, User } from './types';
+import { useCart } from './src/hooks/useCart';
+import { authApi, getAuthToken } from './src/api';
 
 type ViewState = 'home' | 'new' | 'gallery' | 'artists' | 'bespoke' | 'story' | 'policy' | 'faq' | 'auth';
 
@@ -25,8 +27,28 @@ const App: React.FC = () => {
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [isCartOpen, setIsCartOpen] = useState(false);
-  const [cartCount, setCartCount] = useState(0);
-  const [user, setUser] = useState<{name: string} | null>(null);
+  const [user, setUser] = useState<User | null>(null);
+
+  // Use cart hook
+  const { cartCount, addToCart } = useCart();
+
+  // Check for existing auth on mount
+  useEffect(() => {
+    const checkAuth = async () => {
+      const token = getAuthToken();
+      if (token) {
+        try {
+          const response = await authApi.getCurrentUser();
+          if (response.success) {
+            setUser(response.data);
+          }
+        } catch (error) {
+          console.error('Failed to get current user:', error);
+        }
+      }
+    };
+    checkAuth();
+  }, []);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -35,15 +57,24 @@ const App: React.FC = () => {
     return () => clearTimeout(timer);
   }, [selectedProduct, currentView]);
 
+  const handleAddToCart = async (productId: number) => {
+    try {
+      await addToCart(productId, 1);
+      setIsCartOpen(true);
+    } catch (error) {
+      console.error('Failed to add to cart:', error);
+    }
+  };
+
   const renderContent = () => {
     if (selectedProduct) {
       return (
-        <ProductDetail 
-          product={selectedProduct} 
+        <ProductDetail
+          product={selectedProduct}
           onBack={() => setSelectedProduct(null)}
           onAddToCart={() => {
-            setCartCount(prev => prev + 1);
-            setIsCartOpen(true);
+            const id = typeof selectedProduct.id === 'string' ? parseInt(selectedProduct.id) : selectedProduct.id;
+            handleAddToCart(id);
           }}
         />
       );
@@ -51,7 +82,7 @@ const App: React.FC = () => {
 
     switch (currentView) {
       case 'auth':
-        return <AuthPage onAuthSuccess={(name) => { setUser({name}); setCurrentView('home'); }} />;
+        return <AuthPage onAuthSuccess={(userData) => { setUser(userData); setCurrentView('home'); }} />;
       case 'gallery':
         return <GalleryPage onSelectProduct={setSelectedProduct} />;
       case 'new':
@@ -78,7 +109,7 @@ const App: React.FC = () => {
                   <h2 className="text-3xl font-light heading-font">精心策展</h2>
                   <p className="text-gray-500 mt-2 font-light">Curated Selection</p>
                 </div>
-                <button 
+                <button
                   onClick={() => setIsFilterOpen(true)}
                   className="px-4 py-2 border-b border-black text-sm uppercase tracking-widest hover:bg-black hover:text-white transition-all duration-300"
                 >
@@ -94,9 +125,9 @@ const App: React.FC = () => {
 
   return (
     <div className="min-h-screen flex flex-col animate-fade-in overflow-x-hidden">
-      <Navbar 
-        cartCount={cartCount} 
-        onSearchClick={() => setIsFilterOpen(true)} 
+      <Navbar
+        cartCount={cartCount}
+        onSearchClick={() => setIsFilterOpen(true)}
         onCartClick={() => setIsCartOpen(true)}
         onAuthClick={() => setCurrentView('auth')}
         user={user}
@@ -105,7 +136,7 @@ const App: React.FC = () => {
           setCurrentView(view);
         }}
       />
-      
+
       <main className="flex-grow pt-20">
         {renderContent()}
       </main>
@@ -114,20 +145,19 @@ const App: React.FC = () => {
         setSelectedProduct(null);
         setCurrentView(view);
       }} />
-      
-      <FilterSidebar 
-        isOpen={isFilterOpen} 
-        onClose={() => setIsFilterOpen(false)} 
+
+      <FilterSidebar
+        isOpen={isFilterOpen}
+        onClose={() => setIsFilterOpen(false)}
       />
 
-      <CartDrawer 
-        isOpen={isCartOpen} 
+      <CartDrawer
+        isOpen={isCartOpen}
         onClose={() => setIsCartOpen(false)}
-        cartCount={cartCount}
       />
 
       <div className="fixed bottom-8 right-8 z-40 md:hidden">
-        <button 
+        <button
           onClick={() => setIsCartOpen(true)}
           className="bg-black text-white p-4 rounded-full shadow-xl relative"
         >

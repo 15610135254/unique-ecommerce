@@ -1,18 +1,21 @@
 
 import React, { useState } from 'react';
-import { PRODUCTS, CATEGORIES } from '../constants';
 import { Product } from '../types';
+import { useProducts, useCategories } from '../src/hooks/useProducts';
+import { CATEGORIES } from '../constants';
 
 interface GalleryPageProps {
   onSelectProduct: (p: Product) => void;
 }
 
 const GalleryPage: React.FC<GalleryPageProps> = ({ onSelectProduct }) => {
-  const [activeCategory, setActiveCategory] = useState('All');
+  const [activeCategory, setActiveCategory] = useState<string>('All');
+  const { products, loading } = useProducts(0, 100);
 
-  const filteredProducts = activeCategory === 'All' 
-    ? PRODUCTS 
-    : PRODUCTS.filter(p => p.category === activeCategory || p.material === activeCategory);
+  // Filter products by category
+  const filteredProducts = activeCategory === 'All'
+    ? products
+    : products.filter(p => p.category === activeCategory || p.material === activeCategory);
 
   return (
     <div className="animate-fade-in px-6 md:px-12 py-12">
@@ -23,7 +26,7 @@ const GalleryPage: React.FC<GalleryPageProps> = ({ onSelectProduct }) => {
 
       {/* Material/Category Quick Selection */}
       <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-20">
-        <div 
+        <div
           onClick={() => setActiveCategory('All')}
           className={`relative h-32 cursor-pointer overflow-hidden group transition-all duration-500 ${activeCategory === 'All' ? 'ring-1 ring-black ring-offset-4' : ''}`}
         >
@@ -32,7 +35,7 @@ const GalleryPage: React.FC<GalleryPageProps> = ({ onSelectProduct }) => {
           </div>
         </div>
         {CATEGORIES.map(cat => (
-          <div 
+          <div
             key={cat.id}
             onClick={() => setActiveCategory(cat.name)}
             className={`relative h-32 cursor-pointer overflow-hidden group transition-all duration-500 ${activeCategory === cat.name ? 'ring-1 ring-black ring-offset-4' : ''}`}
@@ -45,32 +48,38 @@ const GalleryPage: React.FC<GalleryPageProps> = ({ onSelectProduct }) => {
         ))}
       </div>
 
-      <div className="columns-1 sm:columns-2 lg:columns-3 gap-12">
-        {filteredProducts.map((product) => (
-          <div 
-            key={product.id}
-            className="mb-16 break-inside-avoid group cursor-pointer"
-            onClick={() => onSelectProduct(product)}
-          >
-            <div className="relative overflow-hidden aspect-[4/5] bg-gray-50 mb-6">
-              <img 
-                src={product.image} 
-                className="w-full h-full object-cover grayscale-[20%] group-hover:grayscale-0 transition-all duration-1000 group-hover:scale-105" 
-              />
-              <div className="absolute top-4 left-4">
-                <span className="text-[9px] bg-white/80 backdrop-blur-sm px-2 py-1 tracking-tighter uppercase">{product.material}</span>
+      {loading ? (
+        <div className="flex justify-center items-center py-24">
+          <div className="animate-spin h-8 w-8 border-2 border-black border-t-transparent rounded-full"></div>
+        </div>
+      ) : (
+        <div className="columns-1 sm:columns-2 lg:columns-3 gap-12">
+          {filteredProducts.map((product) => (
+            <div
+              key={product.id}
+              className="mb-16 break-inside-avoid group cursor-pointer"
+              onClick={() => onSelectProduct(product)}
+            >
+              <div className="relative overflow-hidden aspect-[4/5] bg-gray-50 mb-6">
+                <img
+                  src={product.image || product.imageUrl}
+                  className="w-full h-full object-cover grayscale-[20%] group-hover:grayscale-0 transition-all duration-1000 group-hover:scale-105"
+                />
+                <div className="absolute top-4 left-4">
+                  <span className="text-[9px] bg-white/80 backdrop-blur-sm px-2 py-1 tracking-tighter uppercase">{product.material || product.category}</span>
+                </div>
+              </div>
+              <div className="flex justify-between items-end">
+                <div>
+                  <h3 className="text-sm font-light tracking-wide">{product.name}</h3>
+                  <p className="text-[10px] text-gray-400 mt-1 italic uppercase tracking-tighter">By {product.creator}</p>
+                </div>
+                <span className="text-sm font-extralight">¥{product.price}</span>
               </div>
             </div>
-            <div className="flex justify-between items-end">
-              <div>
-                <h3 className="text-sm font-light tracking-wide">{product.name}</h3>
-                <p className="text-[10px] text-gray-400 mt-1 italic uppercase tracking-tighter">By {product.creator}</p>
-              </div>
-              <span className="text-sm font-extralight">¥{product.price}</span>
-            </div>
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 };

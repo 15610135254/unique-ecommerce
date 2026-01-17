@@ -92,29 +92,31 @@ const Navbar: React.FC<NavbarProps> = ({
 
               {/* User Dropdown Menu */}
               {showUserMenu && (
-                <div className="absolute right-0 mt-2 w-48 bg-white border border-gray-100 shadow-lg py-2">
-                  <div className="px-4 py-2 border-b border-gray-100">
-                    <p className="text-sm font-medium">{user.username}</p>
-                    <p className="text-xs text-gray-400">{user.phone}</p>
+                <div className="absolute right-0 mt-4 w-56 bg-white/95 backdrop-blur-sm shadow-xl animate-fade-in">
+                  <div className="p-6 border-b border-gray-100">
+                    <p className="text-sm heading-font tracking-wide">{user.username}</p>
+                    <p className="text-[10px] text-gray-400 uppercase tracking-widest mt-1">{user.phone}</p>
                   </div>
-                  <button
-                    onClick={() => { setShowUserMenu(false); onNavigate('gallery'); }}
-                    className="w-full text-left px-4 py-2 text-xs hover:bg-gray-50 transition-colors"
-                  >
-                    我的订单
-                  </button>
-                  <button
-                    onClick={() => { setShowUserMenu(false); onNavigate('bespoke'); }}
-                    className="w-full text-left px-4 py-2 text-xs hover:bg-gray-50 transition-colors"
-                  >
-                    定制请求
-                  </button>
-                  <button
-                    onClick={handleLogout}
-                    className="w-full text-left px-4 py-2 text-xs text-red-600 hover:bg-gray-50 transition-colors"
-                  >
-                    退出登录
-                  </button>
+                  <div className="py-2">
+                    <button
+                      onClick={() => { setShowUserMenu(false); onNavigate('gallery'); }}
+                      className="w-full text-left px-6 py-3 text-[10px] uppercase tracking-widest hover:bg-gray-50 transition-colors border-l-2 border-transparent hover:border-black"
+                    >
+                      我的订单 Orders
+                    </button>
+                    <button
+                      onClick={() => { setShowUserMenu(false); onNavigate('bespoke'); }}
+                      className="w-full text-left px-6 py-3 text-[10px] uppercase tracking-widest hover:bg-gray-50 transition-colors border-l-2 border-transparent hover:border-black"
+                    >
+                      定制请求 Customization
+                    </button>
+                    <button
+                      onClick={handleLogout}
+                      className="w-full text-left px-6 py-3 text-[10px] uppercase tracking-widest hover:bg-gray-50 transition-colors border-l-2 border-transparent hover:border-black text-gray-600"
+                    >
+                      退出登录 Logout
+                    </button>
+                  </div>
                 </div>
               )}
             </div>

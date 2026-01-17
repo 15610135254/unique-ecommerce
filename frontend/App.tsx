@@ -66,6 +66,11 @@ const App: React.FC = () => {
     }
   };
 
+  const handleLogout = () => {
+    setUser(null);
+    setCurrentView('home');
+  };
+
   const renderContent = () => {
     if (selectedProduct) {
       return (
@@ -135,6 +140,7 @@ const App: React.FC = () => {
           setSelectedProduct(null);
           setCurrentView(view);
         }}
+        onLogout={handleLogout}
       />
 
       <main className="flex-grow pt-20">

@@ -28,6 +28,7 @@ const App: React.FC = () => {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [user, setUser] = useState<User | null>(null);
+  const [pendingAddToCartProductId, setPendingAddToCartProductId] = useState<number | null>(null);
 
   // Use cart hook
   const { cartCount, addToCart } = useCart();
@@ -58,6 +59,14 @@ const App: React.FC = () => {
   }, [selectedProduct, currentView]);
 
   const handleAddToCart = async (productId: number) => {
+    // Check if user is logged in
+    if (!user) {
+      // Store the product ID and navigate to auth
+      setPendingAddToCartProductId(productId);
+      setCurrentView('auth');
+      return;
+    }
+
     try {
       await addToCart(productId, 1);
       setIsCartOpen(true);
@@ -69,6 +78,22 @@ const App: React.FC = () => {
   const handleLogout = () => {
     setUser(null);
     setCurrentView('home');
+  };
+
+  const handleAuthSuccess = async (userData: User) => {
+    setUser(userData);
+    setCurrentView('home');
+
+    // If there's a pending add to cart action, execute it
+    if (pendingAddToCartProductId) {
+      try {
+        await addToCart(pendingAddToCartProductId, 1);
+        setIsCartOpen(true);
+        setPendingAddToCartProductId(null);
+      } catch (error) {
+        console.error('Failed to add to cart after login:', error);
+      }
+    }
   };
 
   const renderContent = () => {
@@ -87,7 +112,7 @@ const App: React.FC = () => {
 
     switch (currentView) {
       case 'auth':
-        return <AuthPage onAuthSuccess={(userData) => { setUser(userData); setCurrentView('home'); }} />;
+        return <AuthPage onAuthSuccess={handleAuthSuccess} />;
       case 'gallery':
         return <GalleryPage onSelectProduct={setSelectedProduct} />;
       case 'new':

@@ -10,11 +10,13 @@ interface CartDrawerProps {
 const CartDrawer: React.FC<CartDrawerProps> = ({ isOpen, onClose }) => {
   const { cartItems, cartCount, loading, updateQuantity, removeFromCart, getTotal, refetch } = useCart();
 
+  // Only refetch when drawer opens, not on every refetch function change
   useEffect(() => {
     if (isOpen) {
       refetch();
     }
-  }, [isOpen, refetch]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isOpen]);
 
   const total = getTotal();
 

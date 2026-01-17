@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import { cartApi, CartResponse } from '../api';
+import { useState, useEffect, useCallback } from 'react';
+import { cartApi, CartResponse, getAuthToken } from '../api';
 import { CartItem } from '../types';
 
 // Transform API cart item to local cart item format
@@ -25,8 +25,19 @@ export const useCart = () => {
   const [cartCount, setCartCount] = useState(0);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [hasFetched, setHasFetched] = useState(false);
 
-  const fetchCart = async () => {
+  const fetchCart = useCallback(async () => {
+    // Don't fetch if user is not authenticated
+    const token = getAuthToken();
+    if (!token) {
+      setCartItems([]);
+      setCartCount(0);
+      setLoading(false);
+      setHasFetched(true);
+      return;
+    }
+
     try {
       setLoading(true);
       const response = await cartApi.getCartItems();
@@ -46,8 +57,9 @@ export const useCart = () => {
       }
     } finally {
       setLoading(false);
+      setHasFetched(true);
     }
-  };
+  }, []);
 
   const addToCart = async (productId: number, quantity = 1) => {
     try {
@@ -110,9 +122,12 @@ export const useCart = () => {
     return cartItems.reduce((sum, item) => sum + item.subtotal, 0);
   };
 
+  // Only fetch on mount if user is authenticated
   useEffect(() => {
-    fetchCart();
-  }, []);
+    if (!hasFetched) {
+      fetchCart();
+    }
+  }, [hasFetched, fetchCart]);
 
   return {
     cartItems,

@@ -1,0 +1,48 @@
+spring:
+  application:
+    name: unique-backend
+
+  datasource:
+    url: jdbc:mysql://localhost:3306/unique_db?createDatabaseIfNotExist=true&useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
+    username: root
+    password: ${DB_PASSWORD:970204}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQLDialect
+        format_sql: true
+    open-in-view: false
+
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 10MB
+
+server:
+  port: 8080
+  servlet:
+    context-path: /api
+
+# JWT配置
+jwt:
+  secret: ${JWT_SECRET:unique-secret-key-change-in-production-2024}
+  expiration: 86400000  # 24小时
+
+# 阿里云OSS配置
+aliyun:
+  oss:
+    endpoint: ${OSS_ENDPOINT:}
+    access-key-id: ${OSS_ACCESS_KEY_ID:}
+    access-key-secret: ${OSS_ACCESS_KEY_SECRET:}
+    bucket-name: ${OSS_BUCKET_NAME:}
+
+# 日志配置
+logging:
+  level:
+    com.unique: DEBUG
+    org.hibernate.SQL: DEBUG

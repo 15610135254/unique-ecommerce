@@ -1,0 +1,36 @@
+version: '3.8'
+
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: unique_mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: unique_db
+      MYSQL_CHARACTER_SET_SERVER: utf8mb4
+      MYSQL_COLLATION_SERVER: utf8mb4_unicode_ci
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    networks:
+      - unique_network
+
+  backend:
+    build: .
+    container_name: unique_backend
+    environment:
+      DB_PASSWORD: root
+      JWT_SECRET: unique-secret-key-change-in-production
+    ports:
+      - "8080:8080"
+    depends_on:
+      - mysql
+    networks:
+      - unique_network
+
+volumes:
+  mysql_data:
+
+networks:
+  unique_network:
